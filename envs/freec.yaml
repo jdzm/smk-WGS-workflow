@@ -1,0 +1,16 @@
+name: freec
+channels:
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - bedtools=2.29.2
+  - control-freec=11.5
+  - pyfaidx
+  - samtools
+  - python=3.*
+  - r-base=3.6.*
+  - bioconductor-rtracklayer=1.46.0
+  - r-tidyverse=1.2.1
+prefix: /home/diazmiya/miniconda2/envs/freec
+

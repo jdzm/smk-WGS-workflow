@@ -1,0 +1,14 @@
+name: trans
+channels:
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - delly=0.8.3
+  - python=3.*
+  - bcftools=1.*
+  - igvtools=2.5.3
+  - survivor=1.0.7
+  - alfred
+prefix: /home/diazmiya/miniconda2/envs/trans
+

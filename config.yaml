@@ -1,0 +1,195 @@
+project: 20200103-WGS
+derived_data: ../derived_data
+in_data: ../input
+metadata: ../metadata
+threads: 21
+logs: ../logs
+scratch: /mnt/data3/Juan/temp/scratch
+svprops: /mnt/data3/Juan/tools/svprops/src
+igv_vis: /mnt/data3/Juan/IGV-files/WGS
+
+sam_mem: 5G
+min_map_qual: 20
+
+chr_sizes:
+  full: /mnt/data3/Juan/repository/hg19/hg19.chrom.sizes
+  main: /mnt/data3/Juan/repository/hg19/hg19.main.chrom.sizes
+
+ref_genome:
+  name: hg19
+  bwa_idx: /mnt/data3/Juan/repository/hg19/hg19_chr1_22XYM.fa
+  blacklist: /mnt/data3/Juan/repository/hg19/hg19-blacklist.v2.bed
+  dbsnp_vcf: /mnt/data3/Juan/repository/funcotator_v1.6/dbsnp/hg19/hg19_All_20170710.vcf.gz
+  gnomad_af_only: /mnt/data3/Juan/repository/hg19/gnomAD/af-only-gnomad.raw.sites.hg19.vcf.gz
+
+samples:
+  WT_Ctrl:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: WT_Ctrl_R1.fastq.gz
+    read2: WT_Ctrl_R2.fastq.gz
+    model: RPE
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: control
+    oldName: WT_Ctrl
+    replicate: 1
+
+  TP53_Ctrl:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_Ctrl_R1.fastq.gz
+    read2: TP53_Ctrl_R2.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: mutant
+    oldName: TP53_Ctrl 
+    replicate: 1
+
+  TP53_48h1:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_48Rec1_R1.fastq.gz
+    read2: TP53_48Rec1_R2.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_48Rec1
+    replicate: 1
+  TP53_48h2:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_48Rec2_R1.fastq.gz
+    read2: TP53_48Rec2_R2.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_48Rec2
+    replicate: 2
+  
+  TP53_6w1:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_Aneu1_R1.fastq.gz
+    read2: TP53_Aneu1_R2.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_Aneu1
+    replicate: 1
+  # TP53_6w2:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+  #   read1: TP53_Aneu2_R1.fastq.gz
+  #   read2: TP53_Aneu2_R2.fastq.gz
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   group1: wgd
+  #   oldName: TP53_Aneu2
+  #   replicate: 2
+
+  TP53_6wTumo1:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu1
+    read1: RPE_Aneu1_R1_001.fastq.gz
+    read2: RPE_Aneu1_R2_001.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    time: tumor6w
+    group1: tumor
+    oldName: RPE_Tumo1_6w
+    replicate: 1
+  # TP53_6wTumo2:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu2
+  #   read1: RPE_Aneu2_R1_001.fastq.gz
+  #   read2: RPE_Aneu2_R2_001.fastq.gz
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   group1: tumor
+  #   oldName: RPE_Tumo2_6w
+  #   replicate: 1
+  # TP53_6wTumo3:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu3
+  #   read1: RPE_Aneu3_R1_001.fastq.gz
+  #   read2: RPE_Aneu3_R2_001.fastq.gz
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   group1: tumor
+  #   oldName: RPE_Tumo3_6w
+  #   replicate: 1
+  
+  # TP53_48h_merged:
+  #   bam1: TP53_48h1
+  #   bam2: TP53_48h2
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+
+  # TP53_6w_merged:
+  #   bam1: TP53_6w1
+  #   bam2: TP53_6w2
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+
+############### 20w samples #########
+
+  TP53_20w:
+      fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu-P25
+      read1: RL05_Aneu-P25_R1_001.fastq.gz
+      read2: RL05_Aneu-P25_R2_001.fastq.gz
+      model: RPE_TP53
+      control: WT_Ctrl
+      expectedPloidy: 2
+      maxPloidy: 6
+      group1: wgd
+      oldName: TP53_20w
+      replicate: 1
+
+  TP53_20wTumo1:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m1
+    read1: RL05_Aneu25-m1_R1_001.fastq.gz
+    read2: RL05_Aneu25-m1_R2_001.fastq.gz
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: tumor
+    oldName: TP53_20wTumo1
+    replicate: 1
+
+  # TP53_20wTumo2:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m2
+  #   read1: RL05_Aneu25-m2_R1_001.fastq.gz
+  #   read2: RL05_Aneu25-m2_R2_001.fastq.gz
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   group1: tumor
+  #   oldName: TP53_20wTumo2
+  #   replicate: 1
+  # TP53_20wTumo3:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m3
+  #   read1: RL05_Aneu25-m3_R1_001.fastq.gz
+  #   read2: RL05_Aneu25-m3_R2_001.fastq.gz
+  #   model: RPE_TP53
+  #   control: WT_Ctrl
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   group1: tumor
+  #   oldName: TP53_20wTumo3
+  #   replicate: 1
+

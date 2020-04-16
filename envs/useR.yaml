@@ -1,0 +1,20 @@
+name: useR
+channels:
+  - conda-forge
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - python=3.*
+  - r-base=3.6.*
+  - r-biocmanager=1.30.4
+  - r-broom
+  - r-colorspace
+  - r-essentials
+  - r-matrix=1.2_17
+  - r-rcolorbrewer=1.1_2
+  - r-scales=1.0.0
+  - r-tidyverse=1.2.1
+  - bioconductor-rtracklayer=1.46.0
+prefix: /home/diazmiya/miniconda2/envs/useR
+

@@ -1,0 +1,17 @@
+name: bwa-gatk
+channels:
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - bedtools=2.29.2
+  - bwa=0.7.17
+  - samtools
+  - gatk4=4.1.6.0
+  - freebayes=1.3.2
+  - python=3.*
+  - bcftools=1.*
+  - igvtools=2.5.3
+  - survivor=1.0.7
+prefix: /home/diazmiya/miniconda2/envs/bwa-gatk
+
