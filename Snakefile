@@ -18,6 +18,7 @@ models = list(set([samples[sample]['model'] for sample in tumors]))
 #include: "rules/align.smk"
 include: "rules/coverage.smk"
 include: "rules/freec-control.smk"
+include: "rules/merge-cnvs.smk"
 include: "rules/mutect2.smk"
 include: "rules/delly.smk"
 include: "rules/data_vis.smk"
@@ -26,18 +27,19 @@ include: "rules/data_vis.smk"
 		# ['%s/%s/aligned/filt.bam' % (in_data, s) for s in samples],
 		# ['%s/%s/alfred_qc/qc_report.pdf' % (derived, s) for s in samples],
 		# ['%s/%s/coverage/cov.gen.pdf' % (derived, s) for s in samples],
-		# expand (['%s/%s/freec_{m}/freec_CNVs.p.value.txt' % (derived, s) for s in tumors], m=['control','single']),
-		# expand (['%s/%s/freec_{m}/freec_CNVs.p.value.txt' % (derived, s) for s in controls], m=['single'])
-		# ['%s/snv_calls/%s/mutect2/somatic.vcf.gz' % (derived, c) for c in models]
+		# expand (['%s/%s/freec_{c}/freec_CNVs.p.value.txt' % (derived, s) for s in tumors], c=['control','single']),
+		# expand (['%s/%s/freec_{c}/freec_CNVs.p.value.txt' % (derived, s) for s in controls], c=['single'])
+		# ['%s/snv_calls/%s/mutect2-gnomAD-joint/somatic.vcf.gz' % (derived, m) for m in models]
 		# ['%s/snv_calls/RPE_TP53-bypass/mutect2/somatic.vcf.gz' % (derived)],
 
 rule all:
 	input:
 		# ['%s/%s/freec_BAF/freec_CNVs.p.value.txt' % (derived, s) for s in tumors],
 		# ['%s/sv_calls/%s/delly/somatic_svs.bcf' % (derived, c) for c in models],
-		expand (['%s/%s/freec_{m}/freec_CNVs.p.value.txt' % (derived, s) for s in tumors], m=['control','single']),
-		['%s/snv_calls/%s/mutect2/somatic.vcf.gz' % (derived, c) for c in models],
-		['%s/%s/delly/filtered_calls.bcf' % (derived, s) for s in tumors],
-		#['%s/%s.filt.bam.tdf' % (config["igv_vis"], s) for s in samples],
-		['%s/%s/mutect_calls/somatic.vcf.gz' % (derived, s) for s in tumors],
+		# expand (['%s/%s/freec_{c}/freec_CNVs.p.value.txt' % (derived, s) for s in tumors], c=['control','single']),
+		['%s/snv_calls/%s/mutect2-gnomAD-joint/somatic.vcf.gz' % (derived, m) for m in models],
+		# ['%s/%s/delly/filtered_calls.bcf' % (derived, s) for s in tumors],
+		# ['%s/%s.filt.bam.tdf' % (config["igv_vis"], s) for s in samples],
+		# ['%s/%s/mutect_calls/somatic.vcf.gz' % (derived, s) for s in tumors],
+		expand(['%s/cnv_calls/%s/control-freec/cnvs_{c}.tsv' % (derived, m) for m in models], c=['control','single'])
 

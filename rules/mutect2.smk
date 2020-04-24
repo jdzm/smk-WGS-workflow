@@ -66,54 +66,61 @@ rule mutect2_filter:
 #expand (['%s/{t}/aligned/filt.bam' % (in_data)], t=tumors)
 rule mutect2_joint_call:
 	input: 
-		['%s/%s/aligned/filt.bam' % (in_data, t) for t in tumors]
+		bam = ['%s/%s/aligned/filt.bam' % (in_data, t) for t in tumors]
 	output:
-		vcf = '%s/snv_calls/{m}/mutect2/somatic_raw.vcf.gz' % (derived)
+		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
+		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
 	threads: config["threads"]
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
 		g = config["ref_genome"]["bwa_idx"],
-		dbsnp = config["ref_genome"]["dbsnp_vcf"],
+		gnomadaf = config["ref_genome"]["gnomad_af_only"],
 		con_name = "WT_Ctrl",
 		con_bam = '%s/WT_Ctrl/aligned/filt.bam' % (in_data)
 	log:
-		'%s/joint/{m}/01_mutect_joint.log' % (logs)
+		'%s/joint/{m}/01_mutect_joint_gnomad.log' % (logs)
 	shell:
 		"""
-		in_files="{input}"
+		in_files="{input.bam}"
 		deconvolve_inputs=${{in_files// /" -I "}}
-		
+
 		gatk Mutect2 2> {log} \
 			-R {params.g} \
 			-I $deconvolve_inputs \
 			-I {params.con_bam} \
 			--native-pair-hmm-threads {threads} \
+			--f1r2-tar-gz {output.orient} \
+			--germline-resource {params.gnomadaf} \
 			-normal {params.con_name} \
-			--germline-resource {params.dbsnp} \
 			-O {output.vcf}
 		"""
 
 rule mutect2_joint_filter:
 	input: 
-		vcf = '%s/snv_calls/{m}/mutect2/somatic_raw.vcf.gz' % (derived)
+		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
+		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
 	output:
-		filt = '%s/snv_calls/{m}/mutect2/somatic.vcf.gz' % (derived)
+		filt = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic.vcf.gz' % (derived),
+		romodel = '%s/snv_calls/{m}/mutect2-gnomAD-joint/read-orientation-model.tar.gz' % (derived)
 	threads: config["threads"]
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
 		g = config["ref_genome"]["bwa_idx"]
 	log:
-		'%s/joint/{m}/015_mutect_joint_filter.log' % (logs)
+		'%s/joint/{m}/015_mutect_joint_filter_gnomad.log' % (logs)
 	shell:
 		"""
-		
+		gatk LearnReadOrientationModel 2> {log} \
+			-I {input.orient} -O {output.romodel}
+
 		gatk FilterMutectCalls 2> {log} \
 			-R {params.g} \
 			-V {input.vcf} \
 			--contamination-estimate 0.0 \
-			-O {output.filt} 
+			--ob-priors {output.romodel} \
+			-O {output.filt}
 
 		"""
 # 		--unique-alt-read-count 4 \

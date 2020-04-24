@@ -42,7 +42,7 @@ rule bwa_sort:
     shell:
         """
         bwa mem -R "@RG\\tID:A{params.replicate}\\tSM:{params.label}\\tLB:lib1\\tPU:run1\\tPL:ILLUMINA" \
-            -t {threads} {params.bwa_idx} {input.r1} {input.r2} 2> {log.bwa}\
+            -t {threads} -M {params.bwa_idx} {input.r1} {input.r2} 2> {log.bwa}\
         | samtools view -Shb -@ {threads} - \
         | samtools sort -n -@ {threads} -m {params.proc_mem} - > {output.prefix} 2> {log.to_bam}
         

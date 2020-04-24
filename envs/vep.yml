@@ -1,0 +1,10 @@
+name: vep
+channels:
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - ensembl-vep=99.2
+  - vcf2maf
+prefix: /home/diazmiya/miniconda2/envs/vep
+
