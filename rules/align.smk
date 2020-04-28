@@ -3,7 +3,8 @@
 ## 2. bwa_sort: Aligns fasta to hg19 using bwa, sorts by name for fixing mate information. Results in raw.bam which will be temp
 ## 3. mark_duplicates: Marks duplicates. Produces mdups_metrics.txt as stats file
 ## 4. recal_quals: Recalibrates base quality scores. Required step to improve variant calling later. Final 'raw' bamfile
-## 5. rmdups: Removes all duplicate reads. Does not filter out by mapq as it was happening before. Also creates flagstats for raw and final bams
+## # 5. rmdups: snippet to remove duplicates. Not used as it is not needed for variant calling 
+## bamfiles output by the last rule are protected and snakemake will not overwrite them once produced
 
 ## All rules have a priority of 50-30 so that they are ran the first thing if there are new samples. 
 ## All rules require the same conda environment, conda: '../envs/bwa-gatk.yaml'
@@ -27,8 +28,7 @@ rule bwa_sort:
         r2 = '%s/{s}/fastq/2.fastq.gz' % (in_data)
     output:
         prefix = temp ('%s/{s}/aligned/prefix.bam' % (in_data)),
-        bam = '%s/{s}/aligned/raw.nsort.bam' % (in_data), 
-        recordstats = '%s/{s}/aligned/recordstats.txt' % (in_data)
+        bam = temp('%s/{s}/aligned/raw.nsort.bam' % (in_data))
     params:
         g = genome["fasta"],
         proc_mem = config['sam_mem'], 
@@ -48,11 +48,7 @@ rule bwa_sort:
         | samtools sort -n -@ {threads} -m {params.proc_mem} - > {output.prefix} 2> {log.to_bam}
         
         samtools fixmate -@ {threads} {output.prefix} {output.bam} 2>> {log.to_bam} 
-        
-        line1=$(samtools view -c {output.prefix})
-        line2=$(samtools view -c {output.bam})
-        echo $line1 "raw entries" > {output.recordstats}
-        echo $line2 "fixmate entries" >> {output.recordstats}
+
         """
 
 # Running an instance of MarkDuplicatesSpark. Will not write a PG line on the header
@@ -60,11 +56,10 @@ rule bwa_sort:
 # sorted by coordinate automatically
 rule mark_duplicates:
     input:
-        bam = '%s/{s}/aligned/raw.nsort.bam' % (in_data),
-        recordstats = '%s/{s}/aligned/recordstats.txt' % (in_data)
+        bam = '%s/{s}/aligned/raw.nsort.bam' % (in_data)
     output:
-        mdups = '%s/{s}/aligned/mdups.bam' % (in_data),
-        bai = '%s/{s}/aligned/mdups.bam.bai' % (in_data),
+        mdups = temp('%s/{s}/aligned/mdups.bam' % (in_data)),
+        bai = temp('%s/{s}/aligned/mdups.bam.bai' % (in_data)),
         sbi = temp('%s/{s}/aligned/mdups.bam.sbi' % (in_data)),
         metrics = '%s/{s}/aligned/mdups_metrics.txt' % (in_data)
     conda: '../envs/bwa-gatk.yaml'
@@ -82,8 +77,6 @@ rule mark_duplicates:
          --conf 'spark.executor.cores={threads}' \
          --conf 'spark.local.dir={params.tmpdir}'
         
-        line3=$(samtools view -c {output.mdups})
-        echo $line3 "mdups entries" >> {input.recordstats}
         """
 # samtools index {output.mdups}
 # bai = temp('%s/{s}/aligned/mdups.bam.bai' % (in_data)),
@@ -92,11 +85,10 @@ rule mark_duplicates:
 
 rule recal_quals:
     input:
-        mdups = '%s/{s}/aligned/mdups.bam' % (in_data),
-        recordstats = '%s/{s}/aligned/recordstats.txt' % (in_data)
+        mdups = '%s/{s}/aligned/mdups.bam' % (in_data)
     output: 
         recal_table = '%s/{s}/aligned/recal.table' % (in_data), 
-        bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data),
+        bam = protected('%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)),
         bai = '%s/{s}/aligned/raw.mdups.recal.bai' % (in_data)
     conda: '../envs/bwa-gatk.yaml'
     threads: config['threads'] // 2
@@ -120,34 +112,30 @@ rule recal_quals:
             --bqsr {output.recal_table} \
             -O {output.bam} 
 
-        line3=$(samtools view -c {output.bam})
-        echo $line3 "recal entries" >> {input.recordstats}
-
         touch {output.bai} 
         """
 
-rule rmdups:
-    input:
-        '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
-    output: 
-        nodups = '%s/{s}/aligned/nodups.bam' % (in_data),
-        dups = '%s/{s}/aligned/dups.bam' % (in_data),
-        bai = '%s/{s}/aligned/nodups.bam.bai' % (in_data),
-        flag = '%s/{s}/aligned/nodups.flagstat' % (in_data),
-        rawflag = '%s/{s}/aligned/raw.flagstat' % (in_data),
-    threads: config['threads'] // 2
-    priority: 30
-    conda: '../envs/bwa-gatk.yaml'
-    log:
-        '%s/{s}/04_mapq_filter.log' % (logs)
-    shell: 
-        """
-        samtools view -@ {threads} -h -b -F 0X400 {input} > {output.nodups}
-        samtools view -@ {threads} -h -b -f 0X400 {input} > {output.dups}
+# rule rmdups:
+#     input:
+#         bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data),
+#         recordstats = '%s/{s}/aligned/recordstats.txt' % (in_data)
+#     output: 
+#         nodups = protected('%s/{s}/aligned/nodups.bam' % (in_data)),
+#         dups = '%s/{s}/aligned/dups.bam' % (in_data),
+#         bai = '%s/{s}/aligned/nodups.bam.bai' % (in_data)
+#     threads: config['threads'] // 2
+#     priority: 30
+#     conda: '../envs/bwa-gatk.yaml'
+#     log:
+#         '%s/{s}/04_mapq_filter.log' % (logs)
+#     shell: 
+#         """
+#         samtools view -@ {threads} -h -b -F 0X400 {input.bam} > {output.nodups}
+#         samtools view -@ {threads} -h -b -f 0X400 {input.bam} > {output.dups}
 
-        samtools index {output.nodups} > {output.bai}
-        samtools flagstat {output.nodups} > {output.flag}
+#         samtools index {output.nodups} > {output.bai}
 
-        samtools flagstat {input} > {output.rawflag}
-        """
+#         line5=$(samtools view -c {output.nodups})
+#         echo $line5 "rmdups" >> {input.recordstats}
+#         """
 # samtools view -@ {threads} -h -b -q {params.map_qual} {input} > {output.filt}

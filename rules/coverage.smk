@@ -1,44 +1,45 @@
 rule coverage:
 	input:
-		bam = '%s/{s}/aligned/filt.bam' % (in_data)
+		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
 	output: 
-		hist = '%s/{s}/coverage/cov.hist' % (derived), 
-		plot_cov1 = '%s/{s}/coverage/cov.gen.pdf' % (derived), 
-		plot_cov2 = '%s/{s}/coverage/cov.chr.pdf' % (derived) 
+		hist = '%s/{s}/QC_plots/cov.hist' % (derived), 
+		plot_cov1 = '%s/{s}/QC_plots/cov.gen.pdf' % (derived), 
+		plot_cov2 = '%s/{s}/QC_plots/cov.chr.pdf' % (derived) 
 	threads: 1
-	params: sam_id = '{s}'
+	params: 
+		sam_id = '{s}',
+		chromsizes = genome['chrom_sizes']['full']
 	conda: 
 		'../envs/freec.yaml'
 	shell: 
 		"""		
 		bedtools genomecov -ibam {input.bam} -max 40 > {output.hist}
 
-		Rscript --vanilla scripts/plotCov.R {params.sam_id} {output.hist}
+		Rscript --vanilla scripts/plotCov.R {params.sam_id} {params.chromsizes} {output.hist} 
         """
 
 rule alfred_qc:
 	input:
-		bam = '%s/{s}/aligned/filt.bam' % (in_data)
+		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
 	output:
-		qc = '%s/{s}/alfred_qc/qc.tsv.gz' % (derived),
-		cov = '%s/{s}/alfred_qc/cov.gz' % (derived)
-	threads: 1
+		qc = '%s/{s}/QC_plots/qc.tsv.gz' % (derived),
+		cov = '%s/{s}/QC_plots/cov.gz' % (derived)
+	threads: config['threads'] // 2
 	conda: '../envs/trans.yaml'
 	params: 
-		g = config['ref_genome']['bwa_idx']
+		g = genome["fasta"]
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
 	shell: 
 		"""
-		#samtools index {input.bam}
 		alfred qc -r {params.g} -o {output.qc} {input.bam} &> {log}
 		alfred count_dna -o {output.cov} {input.bam} &>> {log}
 		"""
 
 rule plot_qc: 
 	input:
-		qc = '%s/{s}/alfred_qc/qc.tsv.gz' % (derived)
+		qc = '%s/{s}/QC_plots/qc.tsv.gz' % (derived)
 	output:
-		qc_report =  '%s/{s}/alfred_qc/qc_report.pdf' % (derived)
+		qc_report =  '%s/{s}/QC_plots/qc_report.pdf' % (derived)
 	threads: 1
 	conda: '../envs/trans.yaml'
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
