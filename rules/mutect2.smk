@@ -1,7 +1,7 @@
 rule mutect2_call:
 	input: 
-		bam = '%s/{s}/aligned/filt.bam' % (in_data), 
-		cont = lambda wc: '%s/%s/aligned/filt.bam' % (in_data, samples[wc.s]['control'])
+		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data), 
+		cont = lambda wc: '%s/%s/aligned/raw.mdups.recal.bam' % (in_data, samples[wc.s]['control'])
 	output:
 		vcf = '%s/{s}/mutect_calls/somatic_raw.vcf.gz' % (derived),
 		orient = '%s/{s}/mutect_calls/f1r2.tar.gz' % (derived),
@@ -10,9 +10,8 @@ rule mutect2_call:
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
-		g = config["ref_genome"]["bwa_idx"],
-		dbsnp = config["ref_genome"]["dbsnp_vcf"],
-		gnomadaf = config["ref_genome"]["gnomad_af_only"],
+		g = genome["fasta"],
+		gnomadaf = genome["gnomad_af_only"],
 		con_name = lambda wc: '%s' % (samples[wc.s]['control'])
 	log:
 		'%s/{s}/07_mutect.log' % (logs)
@@ -45,8 +44,7 @@ rule mutect2_filter:
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
-		g = config["ref_genome"]["bwa_idx"],
-		dbsnp = config["ref_genome"]["dbsnp_vcf"]
+		g = genome["fasta"],
 	log:
 		'%s/{s}/075_mutect_filter.log' % (logs)
 	shell:
@@ -62,11 +60,9 @@ rule mutect2_filter:
 		"""
 		# add contamination part later. 
 
-
-#expand (['%s/{t}/aligned/filt.bam' % (in_data)], t=tumors)
 rule mutect2_joint_call:
 	input: 
-		bam = ['%s/%s/aligned/filt.bam' % (in_data, t) for t in tumors]
+		bam = ['%s/%s/aligned/raw.mdups.recal.bam' % (in_data, t) for t in tumors]
 	output:
 		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
 		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
@@ -74,10 +70,10 @@ rule mutect2_joint_call:
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
-		g = config["ref_genome"]["bwa_idx"],
-		gnomadaf = config["ref_genome"]["gnomad_af_only"],
+		g = genome["fasta"],
+		gnomadaf = genome["gnomad_af_only"],
 		con_name = "WT_Ctrl",
-		con_bam = '%s/WT_Ctrl/aligned/filt.bam' % (in_data)
+		con_bam = '%s/WT_Ctrl/aligned/raw.mdups.recal.bam' % (in_data)
 	log:
 		'%s/joint/{m}/01_mutect_joint_gnomad.log' % (logs)
 	shell:
@@ -107,7 +103,7 @@ rule mutect2_joint_filter:
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
-		g = config["ref_genome"]["bwa_idx"]
+		g = genome["fasta"]
 	log:
 		'%s/joint/{m}/015_mutect_joint_filter_gnomad.log' % (logs)
 	shell:
@@ -127,23 +123,7 @@ rule mutect2_joint_filter:
 
 
 # rule mutect2_refine:
-# 	input: 
-# 		bam = '%s/{s}/aligned/filt.bam' % (in_data), 
-# 		orient = '%s/{s}/mutect/f1r2.tar.gz' % (derived)
-# 	output:
-# 		romodel = '%s/{s}/mutect/read-orientation-model.tar.gz' % (derived),
-# 		pilesum = '%s/{s}/mutect/pileupsummaries.table' % (derived),
-# 		contam = '%s/{s}/mutect/contamination.table' % (derived),
-		
-# 	threads: config['threads'] // 4
-# 	conda:
-# 		'../envs/bwa-gatk.yaml'
-# 	params:
-# 		g = config["ref_genome"]["bwa_idx"],
-# 		dbsnp = config["ref_genome"]["dbsnp_vcf"]
-# 	log:
-# 		'%s/{s}/075_mutect_refine.log' % (logs)
-# 	shell:
+# When I have other sort of samples I will need to 
 # 		"""
 # 		gatk LearnReadOrientationModel 2> {log} \
 # 			-I {input.orient} -O {output.romodel}
