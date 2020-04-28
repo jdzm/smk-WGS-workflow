@@ -223,7 +223,15 @@ do
 done
 
 
-
-
-
+# recordstats
+line1=$(samtools view -c {output.prefix})
+line2=$(samtools view -c {output.bam})
+echo $line1 "raw entries" > {output.recordstats}
+echo $line2 "fixmate entries" >> {output.recordstats}
+line3=$(samtools view -c {output.mdups})
+echo $line3 "mdups entries" >> {input.recordstats}
+line4=$(samtools view -c {output.bam})
+echo $line4 "recal entries" >> {input.recordstats}
+line5=$(samtools view -c -F 0X400 {output.bam})
+echo $line5 "rmdups" >> {input.recordstats}
 

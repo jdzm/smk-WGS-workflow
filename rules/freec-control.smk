@@ -12,7 +12,7 @@ rule control_freec:
 	log: '%s/{s}/05_freec_{m}.log' % (logs)
 	params: 
 		outdir = '%s/{s}/freec_{m}' % (derived), 
-		gname = config['ref_genome']['name'],
+		gname = genome['name'],
 		template = '%s/freec_config/config_template_{m}.txt' % (metadata), 
 		my_threads = config['threads'] // 5, 
 		exp_ploidy = '2,3,4'
