@@ -1,3 +1,4 @@
+# Generates and plots histograms of coverage per chr, genome and contig
 rule coverage:
 	input:
 		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
@@ -18,38 +19,56 @@ rule coverage:
 		Rscript --vanilla scripts/plotCov.R {params.sam_id} {params.chromsizes} {output.hist} 
         """
 
+# Generates qc report using alfred qc from geargenomics
 rule alfred_qc:
 	input:
 		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
 	output:
 		qc = '%s/{s}/QC_plots/qc.tsv.gz' % (derived),
-		cov = '%s/{s}/QC_plots/cov.gz' % (derived)
-	threads: config['threads'] // 2
+		qc_report =  '%s/{s}/QC_plots/qc_report.pdf' % (derived)
+	threads: 1
 	conda: '../envs/trans.yaml'
 	params: 
 		g = genome["fasta"]
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
 	shell: 
 		"""
-		alfred qc -r {params.g} -o {output.qc} {input.bam} &> {log}
-		alfred count_dna -o {output.cov} {input.bam} &>> {log}
+		alfred qc -su -r {params.g} -o {output.qc} {input.bam} &> {log} 
+		## -su flag serves to add correct information about hard clip rates. Not essential
+		
+		Rscript scripts/alfred_stats.R {output.qc} {output.qc_report} &>> {log}
+		## code to extract the stats table in a readable format. 
+		## zgrep ^ME qc.tsv.gz | cut -f 2- | datamash transpose | column -t 
 		"""
 
-rule plot_qc: 
+# Plots genome coverage in 10kb bins
+rule plot_cov:
 	input:
-		qc = '%s/{s}/QC_plots/qc.tsv.gz' % (derived)
+		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)
 	output:
-		qc_report =  '%s/{s}/QC_plots/qc_report.pdf' % (derived)
+		cov = '%s/{s}/QC_plots/cov.gz' % (derived),
+		cov_pdf = '%s/{s}/QC_plots/cov.gz.pdf' % (derived),
 	threads: 1
 	conda: '../envs/trans.yaml'
+	params: 
+		g = genome["fasta"]
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
 	shell: 
 		"""
-		Rscript scripts/alfred_stats.R {input.qc} {output.qc_report} &>> {log}
-		# zgrep ^ME qc.tsv.gz | cut -f 2- | datamash transpose | column -t^C 
-		# # code to extract the stats table in a readable format. 
-		# Rscript scripts/alfredrd input.cov output.cov_pdf &>> log # not necessary
+		alfred count_dna -o {output.cov} {input.bam} &>> {log} 
+		Rscript scripts/alfred_cov.R {output.cov} {output.cov_pdf} &>> log 
 		"""
 
+# Gathers alfred qc stats from all experiments in the run to one table
+rule gather_QC: 
+	input: 
+		qc_reps = ['%s/%s/QC_plots/qc.tsv.gz' % (derived, s) for s in samples]
+	output:
+		info_table = '%s/QC_summary/qc_info.tsv' % (derived)
+	conda: '../envs/useR.yaml'
+	params: 
+		outdir = '%s/QC_summary/' % (derived)
+	script:	
+		'../scripts/qc_gather.R'
 
 
