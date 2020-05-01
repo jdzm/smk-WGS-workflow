@@ -34,7 +34,7 @@ rule bwa_sort:
         proc_mem = config['sam_mem'], 
         replicate = lambda wc: '%s' % (samples[wc.s]['replicate']),
         label = '{s}'
-    threads: config['threads']
+    threads: config['threads'] 
     conda: '../envs/bwa-gatk.yaml'
     priority: 50
     log:
@@ -91,7 +91,7 @@ rule recal_quals:
         bam = protected('%s/{s}/aligned/raw.mdups.recal.bam' % (in_data)),
         bai = '%s/{s}/aligned/raw.mdups.recal.bai' % (in_data)
     conda: '../envs/bwa-gatk.yaml'
-    threads: config['threads'] // 2
+    threads: config['threads'] 
     priority: 40
     params:
         g = genome["fasta"],
