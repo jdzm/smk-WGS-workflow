@@ -11,6 +11,7 @@ rule mutect2_call:
 		'../envs/bwa-gatk.yaml'
 	params:
 		g = genome["fasta"],
+		intervals = genome['mutect_exclude'],
 		gnomadaf = genome["gnomad_af_only"],
 		con_name = lambda wc: '%s' % (samples[wc.s]['control'])
 	log:
@@ -21,13 +22,14 @@ rule mutect2_call:
 			-R {params.g} \
 			-I {input.bam} \
 			-I {input.cont} \
+			-XL {params.intervals} \
 			--native-pair-hmm-threads {threads} \
 			--f1r2-tar-gz {output.orient} \
 			--germline-resource {params.gnomadaf} \
 			-normal {params.con_name} \
 			-O {output.vcf}
 
-		gatk LearnReadOrientationModel 2> {log} \
+		gatk LearnReadOrientationModel 2>> {log} \
 			-I {output.orient} -O {output.romodel}
 		"""
 		# --panel-of-normals pon.vcf.gz \
@@ -46,17 +48,15 @@ rule mutect2_filter:
 	params:
 		g = genome["fasta"],
 	log:
-		'%s/{s}/075_mutect_filter.log' % (logs)
+		'%s/{s}/07_mutect_filter.log' % (logs)
 	shell:
 		"""
-		
 		gatk FilterMutectCalls 2> {log} \
 			-R {params.g} \
 			-V {input.vcf} \
 			--contamination-estimate 0.0 \
 			--ob-priors {input.romodel} \
 			-O {output.filt}
-
 		"""
 		# add contamination part later. 
 
@@ -66,12 +66,13 @@ rule mutect2_joint_call:
 	output:
 		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
 		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
-	threads: config["threads"]
+	threads: config["threads"] 
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
 		g = genome["fasta"],
 		gnomadaf = genome["gnomad_af_only"],
+		intervals = genome['mutect_exclude'],
 		con_name = "WT_Ctrl",
 		con_bam = '%s/WT_Ctrl/aligned/raw.mdups.recal.bam' % (in_data)
 	log:
@@ -85,6 +86,7 @@ rule mutect2_joint_call:
 			-R {params.g} \
 			-I $deconvolve_inputs \
 			-I {params.con_bam} \
+			-XL {params.intervals} \
 			--native-pair-hmm-threads {threads} \
 			--f1r2-tar-gz {output.orient} \
 			--germline-resource {params.gnomadaf} \
@@ -94,24 +96,24 @@ rule mutect2_joint_call:
 
 rule mutect2_joint_filter:
 	input: 
-		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
-		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
+		vcf = '%s/snv_calls/{m}/mutect2-joint/somatic_raw.vcf.gz' % (derived),
+		orient = '%s/snv_calls/{m}/mutect2/f1r2.tar.gz' % (derived)
 	output:
-		filt = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic.vcf.gz' % (derived),
-		romodel = '%s/snv_calls/{m}/mutect2-gnomAD-joint/read-orientation-model.tar.gz' % (derived)
+		filt = '%s/snv_calls/{m}/mutect2-joint/somatic.vcf.gz' % (derived),
+		romodel = '%s/snv_calls/{m}/mutect2-joint/read-orientation-model.tar.gz' % (derived)
 	threads: config["threads"]
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
 		g = genome["fasta"]
 	log:
-		'%s/joint/{m}/015_mutect_joint_filter_gnomad.log' % (logs)
+		'%s/joint/{m}/01_mutect_joint_filt.log' % (logs)
 	shell:
 		"""
 		gatk LearnReadOrientationModel 2> {log} \
 			-I {input.orient} -O {output.romodel}
 
-		gatk FilterMutectCalls 2> {log} \
+		gatk FilterMutectCalls 2>> {log} \
 			-R {params.g} \
 			-V {input.vcf} \
 			--contamination-estimate 0.0 \
@@ -119,7 +121,7 @@ rule mutect2_joint_filter:
 			-O {output.filt}
 
 		"""
-# 		--unique-alt-read-count 4 \
+
 
 
 # rule mutect2_refine:

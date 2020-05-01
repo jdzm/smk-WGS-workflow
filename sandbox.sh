@@ -235,3 +235,151 @@ echo $line4 "recal entries" >> {input.recordstats}
 line5=$(samtools view -c -F 0X400 {output.bam})
 echo $line5 "rmdups" >> {input.recordstats}
 
+##
+conda activate lumpy
+bamfile=raw.mdups.recal.bam
+bamfile=raw.bam
+threads=15
+
+samtools view -b -F 1294 $bamfile \
+			| samtools sort -@ $threads - > discordants.bam
+
+samtools view -h $bamfile \
+		    | extractSplitReads_BwaMem -i stdin -d False \
+		    | samtools view -@ $threads -Sb - \
+		    | samtools sort -@ $threads - \
+		    > splitters.bam
+
+
+fasta=/mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.fasta
+excl=/mnt/data3/Juan/tools/delly/excludeTemplates/human.human_g1k_hs37d5.excl.tsv
+threads=1
+smoove call -x --genotype --name $name --outdir . \
+	-f $fasta --processes 12 --exclude $bed *.bam
+
+
+smoove call --outdir results-smoove/ --exclude $excl --name test_tumor \
+	--fasta $fasta -p $threads --genotype raw.mdups.recal.bam
+
+lumpyexpress \
+	-B ../$bamfile \
+	-S test_tumor.split.bam \
+	-D test_tumor.disc.bam
+
+
+for sample in `ls -1 input/`
+do
+	qcfile=derived_data/$sample/QC_plots/qc.tsv.gz
+	qcinfo=derived_data/$sample/QC_plots/qcinfo.tsv
+	if [ -f "$qcfile" ]; then
+		zgrep ^ME $qcfile | cut -f 2- | datamash transpose | awk 'OFS="\t" {print $1,$2}' > $qcinfo
+	else
+		echo $qcfile "does not exist"
+	fi
+done
+
+cd $WGS
+for sample in `ls -1 input/`
+do
+	qcfile=derived_data/$sample/alfred_qc/qc.tsv.gz
+	qcinfo=derived_data/$sample/alfred_qc/qcinfo.tsv
+	if [ -f "$qcfile" ]; then
+		zgrep ^ME $qcfile | cut -f 2- | datamash transpose | awk 'OFS="\t" {print $1,$2}' > $qcinfo
+	else
+		echo $qcfile "does not exist"
+	fi
+done
+
+
+qcfiles=$(find ./ -name "qcinfo.tsv")
+
+# Alfredd to evaluate suppl and secondary
+
+fasta=/mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.fasta
+bam1
+qcrep1
+
+alfred qc -su -r $fasta $bam1 -o $qcrep1 
+
+
+ write for loop for samples
+
+exclude=/mnt/data3/Juan/repository/hg19/hg19.exclude.bed
+project=20200103-WGS
+sample=TP53_6w1
+vcf_raw=/mnt/data3/Juan/$project/derived_data/$sample/mutect_calls/somatic.vcf
+vcf_PASS=somatic_PASS.vcf
+bcftools view -f PASS $vcf_raw > $vcf_PASS
+
+lines_raw=$(zgrep -v ^# $vcf_raw | wc -l )
+lines_pass=$(grep -v ^#  $vcf_PASS| wc -l )
+
+#bedtools subtract -a $vcf_PASS -b $exclude > test.bs.pass.excl.vcf
+bedtools intersect -header -v -a $vcf_PASS -b $exclude > test.is.pass.excl.vcf
+#bedtools intersect -v -a $vcf_PASS -b $exclude > test.is.pass.excl.bed # same, results, use intersect -header if want to keep header
+
+wc -l test.is.pass.excl.bed
+grep -v "#" test.bs.pass.excl.vcf | wc -l
+
+
+bedtools intersect -v -a test.bs.pass.excl.vcf -b test.is.pass.excl.vcf
+
+cmp --silent test.bs.pass.excl.vcf test.is.pass.excl.vcf && echo '### SUCCESS: Files Are Identical! ###' || echo '### WARNING: Files Are Different! ###'
+cmp --silent test.bs.pass.excl.bed test.is.pass.excl.bed && echo '### SUCCESS: Files Are Identical! ###' || echo '### WARNING: Files Are Different! ###'
+
+### Loop to generate files
+project=20200103-WGS
+#project=20200424-Variants
+statsfile=/mnt/data3/Juan/${project}/derived_data/snv_calls/RPE_TP53/indiv_calls.txt
+statsfile=/mnt/data3/Juan/${project}/indiv_calls.txt
+touch $statsfile
+
+# TP53_Ctrl TP53_{48h1,6w1,6wTumo1,20w,20wTumo1}
+for sample in TP53_6wTumo1
+do
+	# vcf_raw=/mnt/data3/Juan/$project/derived_data/$sample/mutect_calls/somatic.vcf.gz
+	# vcf_PASS=/mnt/data3/Juan/$project/derived_data/$sample/mutect_calls/somatic_PASS.vcf
+	# vcf_filt=/mnt/data3/Juan/$project/derived_data/$sample/mutect_calls/somatic_PASS_excl.vcf
+	vcf_raw=/mnt/data3/Juan/$project/derived_data/$sample/mutect_backup_noexcl/somatic.vcf.gz
+	vcf_PASS=/mnt/data3/Juan/$project/derived_data/$sample/mutect_backup_noexcl/somatic_PASS.vcf
+	vcf_filt=/mnt/data3/Juan/$project/derived_data/$sample/mutect_backup_noexcl/somatic_PASS_excl.vcf
+	bcftools view -f PASS $vcf_raw > $vcf_PASS
+	bedtools intersect -header -v -a $vcf_PASS -b $exclude > $vcf_filt
+	echo $sample "raw" $(zgrep -v ^# $vcf_raw | wc -l ) >> $statsfile
+	echo $sample "PASS" $(grep -v ^#  $vcf_PASS| wc -l ) >> $statsfile
+	echo $sample "PASS_excl" $(grep -v ^#  $vcf_filt| wc -l ) >> $statsfile
+done
+
+####
+file1=./derived_data/TP53_Ctrl/mutect_calls/somatic_PASS_excl.vcf
+file2=./derived_data/TP53_6w1/mutect_calls/somatic_PASS_excl.vcf
+file2=./derived_data/TP53_20w/mutect_calls/somatic_PASS_excl.vcf
+
+project=20200103-WGS
+#filtered_vcfs=$(find -name 'somatic_PASS_excl.vcf')
+#sample_names=$(ls -1 $filtered_vcfs | cut -d/ -f3)
+
+intersect_vcfs=/mnt/data3/Juan/${project}/derived_data/snv_calls/RPE_TP53/vcf_intersect_all.bed
+
+## !!! Watch out order!!! 
+sample_names=$(echo TP53_{Ctrl,48h1,6w1,6wTumo1,20w,20wTumo1})
+
+filtered_vcfs="./derived_data/TP53_Ctrl/mutect_calls/somatic_PASS_excl.vcf ./derived_data/TP53_48h1/mutect_calls/somatic_PASS_excl.vcf \
+./derived_data/TP53_6w1/mutect_calls/somatic_PASS_excl.vcf ./derived_data/TP53_6wTumo1/mutect_calls/somatic_PASS_excl.vcf \
+./derived_data/TP53_20w/mutect_calls/somatic_PASS_excl.vcf ./derived_data/TP53_20wTumo1/mutect_calls/somatic_PASS_excl.vcf"
+
+multiIntersectBed -i $filtered_vcfs -header -names $sample_names > $intersect_vcfs
+CMD="multiIntersectBed -i $filtered_vcfs -header -names $sample_names > $intesect_vcfs"
+
+
+
+
+bedtools jaccard -a $file1 -b $file2 > jacc.test
+
+bedfiles=$(find -name "somatic_PASS_excl.vcf")
+
+bedtools multiIntersectBed -i $filtered_vcfs
+
+
+
+
