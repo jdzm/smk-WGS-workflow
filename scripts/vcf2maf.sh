@@ -30,7 +30,7 @@ do
 	workdir=./$sam/annotate/
 	mkdir -p $workdir
 	vcf=./$sam/mutect_calls/somatic.vcf.gz
-	maf=./$sam/annotate/somatic_vep_gnomad.maf
+	maf=./$sam/annotate/somatic_vep.maf
 	log=$logs/$sam/09_annotate.log
 
 	vcf_file=${vcf%.gz}

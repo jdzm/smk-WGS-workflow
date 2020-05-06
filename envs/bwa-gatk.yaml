@@ -7,11 +7,14 @@ dependencies:
   - bedtools=2.29.2
   - bwa=0.7.17
   - samtools
-  - gatk4=4.1.6.0
+  - gatk4=4.1.7.0
   - freebayes=1.3.2
   - python=3.*
   - bcftools=1.*
   - igvtools=2.5.3
+  - r-base=3.6.*
+  - r-tidyverse=1.2.1
+  - r-essentials
   - survivor=1.0.7
 prefix: /home/diazmiya/miniconda2/envs/bwa-gatk
 
