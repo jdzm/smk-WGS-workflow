@@ -11,6 +11,7 @@ igv_vis: /mnt/data3/Juan/IGV-files/WGS
 sam_mem: 5G
 # precompiled version of delly for multithreading
 delly_precomp: /mnt/data3/Juan/tools/delly_precomp/delly_v0.8.3_linux_x86_64bit
+svtypes: ['BND','DEL','DUP','INV']
 
 ####### GENOMES #######
 ref_genome:
