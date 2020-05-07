@@ -39,6 +39,7 @@ rule vcf2maf:
 	output:
 		unzip_vcf = temp('%s/{s}/annotate/somatic.vcf' % (derived)),
 		maf = '%s/{s}/annotate/somatic.maf' % (derived),
+		vep_intermediate = '%s/{s}/annotate/somatic.vep.vcf' % (derived),
 	threads: config["threads"] // 4
 	params:
 		g = genome['fasta'],
@@ -50,6 +51,9 @@ rule vcf2maf:
 	log: '%s/{s}/08_vep.log' % (logs)
 	shell:
 		"""
+		### if intermediate file exists, remove to continue 
+		if [ -e {output.vep_intermediate} ]; then rm {output.vep_intermediate}; fi
+
 		### Hardcoded bit to run vcf2maf and vep
 		export PERL_BASE="/home/diazmiya/miniconda2/envs/vep"
 		export PERL5LIB="$PERL_BASE/lib/site_perl/5.26.2/:$PERL_BASE/lib/site_perl/5.26.2/x86_64-linux-thread-multi:$" 

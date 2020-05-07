@@ -1,3 +1,7 @@
+## Runs mutect on all control-tumor pairs. Controls are defined in the config file.
+## Currently using genomAD allele frequencies as germline resource, and excludion low comp
+## regions (telocentromeric+blacklisted). f1r2 file is needed to improve filtering at later
+## step. Running without panel of normals. 
 rule mutect2_call:
 	input: 
 		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data), 
@@ -32,17 +36,15 @@ rule mutect2_call:
 		gatk LearnReadOrientationModel 2>> {log} \
 			-I {output.orient} -O {output.romodel}
 		"""
-		# --panel-of-normals pon.vcf.gz \
-		# The -f1r2 file is needed to improve the filtering based on the read orientation model. 
-		
 
+# Adds filter fields to mutect result. Does not remove variants.
 rule mutect2_filter:
 	input: 
 		vcf = '%s/{s}/mutect_calls/somatic_raw.vcf.gz' % (derived),
 		romodel = '%s/{s}/mutect_calls/read-orientation-model.tar.gz' % (derived)
 	output:
 		filt = '%s/{s}/mutect_calls/somatic.vcf.gz' % (derived)
-	threads: config["threads"]
+	threads: config["threads"] // 3
 	conda:
 		'../envs/bwa-gatk.yaml'
 	params:
@@ -60,6 +62,8 @@ rule mutect2_filter:
 		"""
 		# add contamination part later. 
 
+# Joint call of all the samples labelled as 'tumor'. Control is hardcoded (only one in our)
+# experimental setup. It will require minor tweaking to include other controls. 
 rule mutect2_joint_call:
 	input: 
 		bam = ['%s/%s/aligned/raw.mdups.recal.bam' % (in_data, t) for t in tumors]
