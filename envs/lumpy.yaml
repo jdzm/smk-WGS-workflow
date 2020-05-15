@@ -1,0 +1,9 @@
+name: lumpy
+channels:
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - smoove=0.2.5
+prefix: /home/diazmiya/miniconda2/envs/lumpy
+
