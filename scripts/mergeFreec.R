@@ -32,27 +32,28 @@ for (filename in ratio_files) {
   }
 }
 
+chr_names = c(1:22, "X", "Y")
 blacklist_file = as.character(snakemake@params["blacklist"])
-blacklist = read.table(blacklist_file, sep = '\t', stringsAsFactors = F) %>% separate (V1, into = c("V1", "chr"), sep = "chr") %>% select (-V1) %>% 
-  mutate (chr = factor (chr, levels = c(1:22, "X", "Y"))) %>% arrange(chr) %>% as.tbl() 
+blacklist = read.table(blacklist_file, sep = '\t', stringsAsFactors = F) %>% filter (V1 %in% chr_names) %>% 
+  mutate (chr = factor (V1, levels = chr_names)) %>% arrange(chr) %>% as.tbl() 
 teloCent_file = as.character(snakemake@params["excl"])
-teloCent = read.table(teloCent_file, sep = '\t',nrows = 140, stringsAsFactors = F) %>% filter(!grepl("chr", V1)) %>% rename (chr=V1) %>%
-  mutate (chr = factor (chr, levels = c(1:22, "X", "Y"))) %>% arrange(chr) %>% as.tbl() 
+teloCent = read.table(teloCent_file, sep = '\t',nrows = 140, stringsAsFactors = F) %>% filter(V1 %in% chr_names) %>% 
+  mutate (chr = factor (V1, levels = chr_names)) %>% arrange(chr) %>% as.tbl() 
 
 blacklist.gr = GRanges(blacklist$chr,IRanges (blacklist$V2,blacklist$V3), "Type" = blacklist$V4)
 teloCent.gr = GRanges(teloCent$chr,IRanges (teloCent$V2,teloCent$V3), "Type" = teloCent$V4)
 rat.gr = GRanges(ratio.all$chr,IRanges (ratio.all$start,ratio.all$start+49000))
 o_bl = findOverlaps(rat.gr, blacklist.gr)
-o_delly = findOverlaps(rat.gr, teloCent.gr)
+o_teloCent = findOverlaps(rat.gr, teloCent.gr)
 
-dellyTypes = o_delly %>% as.data.frame() %>% as.tbl() %>% rowwise() %>%
-  mutate(dellyType = as.character(teloCent[subjectHits,"V4"])) %>%
+teloCentTypes = o_teloCent %>% as.data.frame() %>% as.tbl() %>% rowwise() %>%
+  mutate(teloCent = as.character(teloCent[subjectHits,"V4"])) %>%
   mutate(chr = as.character(ratio.all[queryHits,1]), start = as.integer(ratio.all[queryHits,2])) %>% select (-queryHits, -subjectHits)
 blTypes = o_bl %>% as.data.frame() %>% as.tbl() %>% rowwise() %>%
   mutate(blType = as.character(blacklist[subjectHits,"V4"])) %>%
   mutate(chr = as.character(ratio.all[queryHits,1]), start = as.integer(ratio.all[queryHits,2])) %>% select (-queryHits, -subjectHits)
 
-ratio.all_bl = ratio.all %>% left_join(blTypes, by = c("chr", "start")) %>% left_join(dellyTypes, by = c("chr", "start")) 
+ratio.all_bl = ratio.all %>% left_join(blTypes, by = c("chr", "start")) %>% left_join(teloCentTypes, by = c("chr", "start")) 
 write.table(ratio.all_bl, file = as.character(snakemake@output["ratio_mat"]), quote = F, row.names = F, sep = '\t')
 
 
