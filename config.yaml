@@ -22,16 +22,21 @@ ref_genome:
     dbsnp_vcf: /mnt/data3/Juan/repository/funcotator_v1.6/dbsnp/hg19/hg19_All_20170710.vcf.gz
     gnomad_af_only: /mnt/data3/Juan/repository/hg19/gnomAD/af-only-gnomad.raw.sites.hg19.vcf.gz
     mutect_exclude: /mnt/data3/Juan/repository/hg19/hg19.exclude.bed
+    gem_mapp: /mnt/data3/Juan/repository/GEM_mappability/out100m2_hg19.gem
     chrom_sizes:
       full: /mnt/data3/Juan/repository/hg19/hg19.chrom.sizes
       main: /mnt/data3/Juan/repository/hg19/hg19.main.chrom.sizes
   human_g1k_hs37d5:
     name: human_g1k_hs37d5
     fasta: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.fasta
+    by_chroms: /mnt/data3/Juan/repository/human_g1k_hs37d5/chroms
     dbsnp_vcf: /mnt/data3/Juan/repository/human_g1k_hs37d5/dbsnp/00-common_all.vcf.gz
+    blacklist: /mnt/data3/Juan/repository/human_g1k_hs37d5/hs37d5-blacklist.v2.bed
+    telocent: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.cent_telo_cont.excl.bed
     gnomad_af_only: /mnt/data3/Juan/repository/hg19/gnomAD/af-only-gnomad.raw.sites.b37.vcf.gz
     mutect_intervals: /mnt/data3/Juan/repository/human_g1k_hs37d5/keep_no_CentTeloCont_Black.bed
     mutect_exclude: /mnt/data3/Juan/repository/human_g1k_hs37d5/hs37d5.exclude.bed
+    gem_mapp: /mnt/data3/Juan/repository/GEM_mappability/out100m2_human_g1k_hs37d5.gem
     chrom_sizes:
       full: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.chrom.sizes
       main: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.main.chrom.sizes
@@ -67,6 +72,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
     read1: WT_Ctrl_R1.fastq.gz
     read2: WT_Ctrl_R2.fastq.gz
+    seqPlatform: Macrogen
     model: RPE
     control: WT_Ctrl
     expectedPloidy: 2
@@ -79,6 +85,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
     read1: TP53_Ctrl_R1.fastq.gz
     read2: TP53_Ctrl_R2.fastq.gz
+    seqPlatform: Macrogen
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -91,6 +98,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
     read1: TP53_48Rec1_R1.fastq.gz
     read2: TP53_48Rec1_R2.fastq.gz
+    seqPlatform: Macrogen
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -103,6 +111,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
     read1: TP53_Aneu1_R1.fastq.gz
     read2: TP53_Aneu1_R2.fastq.gz
+    seqPlatform: Macrogen
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -115,6 +124,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu1
     read1: RPE_Aneu1_R1_001.fastq.gz
     read2: RPE_Aneu1_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -128,6 +138,7 @@ samples:
       fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu-P25
       read1: RL05_Aneu-P25_R1_001.fastq.gz
       read2: RL05_Aneu-P25_R2_001.fastq.gz
+      seqPlatform: Genewiz
       model: RPE_TP53
       control: WT_Ctrl
       expectedPloidy: 2
@@ -140,6 +151,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m1
     read1: RL05_Aneu25-m1_R1_001.fastq.gz
     read2: RL05_Aneu25-m1_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -150,34 +162,39 @@ samples:
 
 ######## Not Nowwww #########
 
-  # TP53_48h2:
-  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
-  #   read1: TP53_48Rec2_R1.fastq.gz
-  #   read2: TP53_48Rec2_R2.fastq.gz
-  #   model: RPE_TP53
-  #   control: WT_Ctrl
-  #   expectedPloidy: 2
-  #   maxPloidy: 6
-  #   group1: wgd
-  #   oldName: TP53_48Rec2
-  #   replicate: 2
+  TP53_48h2:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_48Rec2_R1.fastq.gz
+    read2: TP53_48Rec2_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_48Rec2
+    replicate: 2
+    
 
-  # TP53_6w2:
-  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
-  #   read1: TP53_Aneu2_R1.fastq.gz
-  #   read2: TP53_Aneu2_R2.fastq.gz
-  #   model: RPE_TP53
-  #   control: WT_Ctrl
-  #   expectedPloidy: 2
-  #   maxPloidy: 6
-  #   group1: wgd
-  #   oldName: TP53_Aneu2
-  #   replicate: 2
+  TP53_6w2:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_Aneu2_R1.fastq.gz
+    read2: TP53_Aneu2_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_Aneu2
+    replicate: 2
+    
 
   TP53_6wTumo2:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu2
     read1: RPE_Aneu2_R1_001.fastq.gz
     read2: RPE_Aneu2_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -189,6 +206,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE6w/RPE/RPE_Aneu3
     read1: RPE_Aneu3_R1_001.fastq.gz
     read2: RPE_Aneu3_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -201,6 +219,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m2
     read1: RL05_Aneu25-m2_R1_001.fastq.gz
     read2: RL05_Aneu25-m2_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -213,6 +232,7 @@ samples:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/genewiz_WGS_RPE20w/RPE_Aneu25-m3
     read1: RL05_Aneu25-m3_R1_001.fastq.gz
     read2: RL05_Aneu25-m3_R2_001.fastq.gz
+    seqPlatform: Genewiz
     model: RPE_TP53
     control: WT_Ctrl
     expectedPloidy: 2
@@ -220,4 +240,31 @@ samples:
     group1: tumor
     oldName: TP53_20wTumo3
     replicate: 1
+
+#### Merged samples
+merged:
+  TP53_6w:
+    bam1: TP53_6w1
+    bam2: TP53_6w2
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_Aneu
+    replicate: m
+
+  TP53_48h:
+    read1: TP53_48h1
+    read2: TP53_48h2
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: WT_Ctrl
+    expectedPloidy: 2
+    maxPloidy: 6
+    group1: wgd
+    oldName: TP53_48Rec
+    replicate: m
+
 
