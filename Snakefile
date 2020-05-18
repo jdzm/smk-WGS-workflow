@@ -41,8 +41,9 @@ rule all:
 		['%s/sv_calls/%s/delly_joint/raw_BND.vcf.gz' % (derived,m) for m in models],
 		## Mutect results
 		['%s/%s/mutect_calls/somatic.vcf.gz' % (derived, t) for t in tumors],
-		['%s/snv_calls/%s/annotated/somatic_all.maf' % (derived, m) for m in models],
 		['%s/%s/annotate/somatic_func.maf' % (derived, t) for t in tumors],
+		['%s/snv_calls/%s/annotated/somatic_all.maf' % (derived, m) for m in models],
+		['%s/snv_calls/%s/mutect2-joint/somatic.vcf.gz' % (derived, m) for m in models],
 		## CNVs control-FREEC
 		['%s/%s/freec_single/freec_CNVs.p.value.txt' % (derived,s) for s in samples],
 		['%s/%s/freec_control/freec_CNVs.p.value.txt' % (derived,t) for t in tumors],

@@ -68,8 +68,8 @@ rule mutect2_joint_call:
 	input: 
 		bam = ['%s/%s/aligned/raw.mdups.recal.bam' % (in_data, t) for t in tumors]
 	output:
-		vcf = '%s/snv_calls/{m}/mutect2-gnomAD-joint/somatic_raw.vcf.gz' % (derived),
-		orient = '%s/snv_calls/{m}/mutect2-gnomAD-joint/f1r2.tar.gz' % (derived)
+		vcf = '%s/snv_calls/{m}/mutect2-joint/somatic_raw.vcf.gz' % (derived),
+		orient = '%s/snv_calls/{m}/mutect2-joint/f1r2.tar.gz' % (derived)
 	threads: config["threads"] 
 	conda:
 		'../envs/bwa-gatk.yaml'
@@ -101,7 +101,7 @@ rule mutect2_joint_call:
 rule mutect2_joint_filter:
 	input: 
 		vcf = '%s/snv_calls/{m}/mutect2-joint/somatic_raw.vcf.gz' % (derived),
-		orient = '%s/snv_calls/{m}/mutect2/f1r2.tar.gz' % (derived)
+		orient = '%s/snv_calls/{m}/mutect2-joint/f1r2.tar.gz' % (derived)
 	output:
 		filt = '%s/snv_calls/{m}/mutect2-joint/somatic.vcf.gz' % (derived),
 		romodel = '%s/snv_calls/{m}/mutect2-joint/read-orientation-model.tar.gz' % (derived)
