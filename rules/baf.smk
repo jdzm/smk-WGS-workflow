@@ -7,7 +7,7 @@ rule baf_freec:
 		cnvs = '%s/{s}/freec_{m}/freec_CNVs' % (derived),
 		freec_ratio = '%s/{s}/freec_{m}/freec_ratio.txt' % (derived),
 		freec_info = '%s/{s}/freec_{m}/freec_info.txt' % (derived),
-	conda: '../envs/freec.yaml'
+	conda: '../envs/freec-useR.yaml'
 	threads: config['threads'] // 5
 	log: '%s/{s}/05_freec_{m}.log' % (logs)
 	params: 

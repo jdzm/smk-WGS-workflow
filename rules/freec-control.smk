@@ -8,7 +8,7 @@ rule control_freec:
 		cnvs = '%s/{s}/freec_{m}/freec_CNVs' % (derived),
 		freec_ratio = '%s/{s}/freec_{m}/freec_ratio.txt' % (derived),
 		freec_info = '%s/{s}/freec_{m}/freec_info.txt' % (derived),
-	conda: '../envs/freec.yaml'
+	conda: '../envs/freec-useR.yaml'
 	threads: config['threads'] // 5
 	log: '%s/{s}/05_freec_{m}.log' % (logs)
 	params: 
@@ -50,7 +50,7 @@ rule extra_files_freec:
 		outdir = '%s/{s}/freec_{m}/' % (derived),  
 		exp_ploidy = '2,3,4',
 		sam_id = '{s}'
-	conda: '../envs/freec.yaml'
+	conda: '../envs/freec-useR.yaml'
 	log: '%s/{s}/05_freec_{m}_plots.log' % (logs)
 	priority: 10
 	shell: 
@@ -75,7 +75,7 @@ rule merge_freec_control:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
 	priority: 10
-	conda: '../envs/useR.yaml'
+	conda: '../envs/freec-useR.yaml'
 	script:
 		'../scripts/mergeFreec.R'
 
@@ -91,7 +91,7 @@ rule merge_freec_single:
 	params:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
-	conda: '../envs/useR.yaml'
+	conda: '../envs/freec-useR.yaml'
 	priority: 10
 	script:
 		'../scripts/mergeFreec.R'	

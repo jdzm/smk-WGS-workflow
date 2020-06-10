@@ -41,14 +41,11 @@ rule delly_joint_merge:
 		vcf_raw='%s/sv_calls/{m}/delly_joint/merged_raw.vcf.gz' % (derived),
 		bcf_filt=temp ('%s/sv_calls/{m}/delly_joint/merged_somatic.bcf' % (derived)),
 		vcf_filt='%s/sv_calls/{m}/delly_joint/merged_somatic.vcf.gz' % (derived),
-		svprops_raw = '%s/sv_calls/{m}/delly_joint/merged_raw.tab' % (derived),
-		svprops_filt = '%s/sv_calls/{m}/delly_joint/merged_somatic.tab' % (derived),
 	threads: 2
 	conda:
 		'../envs/trans.yaml'
 	params:
 		sam_info = '%s/delly_samples_RPE.tsv' % (metadata),
-		sv_root = config["svprops"]
 	log:
 		'%s/joint/{m}/02_delly_joint_merge.log'  % (logs)
 	shell:
@@ -57,7 +54,6 @@ rule delly_joint_merge:
 		delly merge {input.raw} -o {output.bcf_raw} &> {log}
 		bcftools convert -O z -o {output.vcf_raw} {output.bcf_raw} &>> {log}
 		tabix {output.vcf_raw}
-		{params.sv_root}/svprops {output.bcf_raw} > {output.svprops_raw}
 
 		### now filter
 		# no support in the matched normal and an overall confident VCF filter equal to PASS.
@@ -65,7 +61,6 @@ rule delly_joint_merge:
 		
 		delly filter -a 0.01 -p -f somatic -o {output.bcf_filt} \
 			-s {params.sam_info} {output.bcf_raw} &>> {log}
-		{params.sv_root}/svprops {output.bcf_filt} > {output.svprops_filt}
 		
 		bcftools convert -O z -o {output.vcf_filt} {output.bcf_filt} &>> {log}
 		tabix {output.vcf_raw}
@@ -82,7 +77,6 @@ rule delly_svcall:
 		csi = '%s/{s}/delly/split_svs/raw_{sv}.bcf.csi' % (derived),
 		vcf = '%s/{s}/delly/split_svs/raw_{sv}.vcf.gz' % (derived),
 		tbi = '%s/{s}/delly/split_svs/raw_{sv}.vcf.gz.tbi' % (derived),
-		svprops = '%s/{s}/delly/split_svs/raw_{sv}.tab' % (derived),
 	threads: 2
 	conda:
 		'../envs/trans.yaml'
@@ -90,7 +84,6 @@ rule delly_svcall:
 		g = genome["fasta"],
 		excl = '%s/delly.excl.tsv' % (metadata), 
 		intervals = genome['mutect_exclude'],
-		sv_root = config["svprops"],
 		run_delly = config["delly_precomp"],
 		svtype='{sv}'
 	log:
@@ -103,8 +96,6 @@ rule delly_svcall:
 		
 		bcftools convert -O z -o {output.vcf} {output.bcf} &>> {log}
 		tabix {output.vcf}
-
-		{params.sv_root}/svprops {output.bcf} > {output.svprops}
 		"""
 
 rule delly_svmerge:
@@ -122,7 +113,6 @@ rule delly_svmerge:
 		'../envs/trans.yaml'
 	params:
 		sam_info = '%s/delly_samples_RPE.tsv' % (metadata),
-		sv_root = config["svprops"]
 	log:
 		'%s/{s}/06_delly_merge.log' % (logs)
 	shell:
@@ -131,7 +121,6 @@ rule delly_svmerge:
 		delly merge {input.raw} -o {output.bcf_raw} &> {log}
 		bcftools convert -O z -o {output.vcf_raw} {output.bcf_raw} &>> {log}
 		tabix {output.vcf_raw}
-		{params.sv_root}/svprops {output.bcf_raw} > {output.svprops_raw}
 
 		### now filter
 		# no support in the matched normal and an overall confident VCF filter equal to PASS.
@@ -139,7 +128,6 @@ rule delly_svmerge:
 		
 		delly filter -a 0.01 -p -f somatic -o {output.bcf_filt} \
 			-s {params.sam_info} {output.bcf_raw} &>> {log}
-		{params.sv_root}/svprops {output.bcf_filt} > {output.svprops_filt}
 		
 		bcftools convert -O z -o {output.vcf_filt} {output.bcf_filt} &>> {log}
 		tabix {output.vcf_raw}

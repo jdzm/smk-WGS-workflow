@@ -11,7 +11,7 @@ rule coverage:
 		sam_id = '{s}',
 		chromsizes = genome['chrom_sizes']['full']
 	conda: 
-		'../envs/freec.yaml'
+		'../envs/freec-useR.yaml'
 	shell: 
 		"""		
 		bedtools genomecov -ibam {input.bam} -max 40 > {output.hist}
@@ -27,7 +27,7 @@ rule alfred_qc:
 		qc = '%s/{s}/QC_plots/qc.tsv.gz' % (derived),
 		qc_report =  '%s/{s}/QC_plots/qc_report.pdf' % (derived)
 	threads: 1
-	conda: '../envs/trans.yaml'
+	conda: '../envs/bwa-gatk.yaml'
 	params: 
 		g = genome["fasta"]
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
@@ -49,7 +49,7 @@ rule plot_cov:
 		cov = '%s/{s}/QC_plots/cov.gz' % (derived),
 		cov_pdf = '%s/{s}/QC_plots/cov.gz.pdf' % (derived),
 	threads: 1
-	conda: '../envs/trans.yaml'
+	conda: '../envs/bwa-gatk.yaml'
 	params: 
 		g = genome["fasta"]
 	log: '%s/{s}/04_alfred-qc.log' % (logs)
@@ -65,7 +65,7 @@ rule gather_QC:
 		qc_reps = ['%s/%s/QC_plots/qc.tsv.gz' % (derived, s) for s in samples]
 	output:
 		info_table = '%s/QC_summary/qc_info.tsv' % (derived)
-	conda: '../envs/useR.yaml'
+	conda: '../envs/freec-useR.yaml'
 	params: 
 		outdir = '%s/QC_summary/' % (derived)
 	script:	

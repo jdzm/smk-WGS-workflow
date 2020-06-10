@@ -20,7 +20,7 @@ rule snp_pileup:
 		'%s/snv_calls/RPE_TP53/pileup/snp_pileup_all.csv.gz' % (derived)
 	threads: config["threads"]
 	conda:
-		'../envs/useR.yaml'
+		'../envs/freec-useR.yaml'
 	params:
 		dbsnp = config["ref_genome"]["dbsnp_vcf"],
 		mincounts = 5,
@@ -43,7 +43,7 @@ rule run_facets:
 		'%s/snv_calls/RPE_TP53/pileup/snp_pileup_all.csv.gz' % (derived)
 	threads: config["threads"]
 	conda:
-		'../envs/useR.yaml'
+		'../envs/freec-useR.yaml'
 	params:
 		dbsnp = config["ref_genome"]["dbsnp_vcf"],
 		mincounts = 5,
