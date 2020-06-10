@@ -9,6 +9,5 @@ dependencies:
   - bcftools=1.*
   - igvtools=2.5.3
   - survivor=1.0.7
-  - alfred
 prefix: /home/diazmiya/miniconda2/envs/trans
 

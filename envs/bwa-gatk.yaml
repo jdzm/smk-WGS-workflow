@@ -16,5 +16,6 @@ dependencies:
   - r-tidyverse=1.2.1
   - r-essentials
   - survivor=1.0.7
+  - alfred
 prefix: /home/diazmiya/miniconda2/envs/bwa-gatk
 
