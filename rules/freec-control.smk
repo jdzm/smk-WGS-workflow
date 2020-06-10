@@ -18,13 +18,17 @@ rule control_freec:
 		gem_map = genome['gem_mapp'],
 		template = '%s/freec_config/config_template_{m}.txt' % (metadata), 
 		my_threads = config['threads'] // 5, 
-		exp_ploidy = '2,3,4'
+		exp_ploidy = '2,3,4',
+		g = genome['fasta'],
+		snps = genome['dbsnp_vcf']
 	priority: 10
 	shell: 
 		"""
 		sed 's+MY_CHRSIZES+{params.chromsizes}+g' {params.template} \
 		| sed 's+MY_CHR_FASTA+{params.gchroms}+g' \
 		| sed 's+MY_GEM_MAP+{params.gem_map}+g' \
+		| sed 's+MY_FULL_FASTA+{params.g}+g' \
+		| sed 's+MY_SNPS+{params.snps}+g' \
 		| sed 's+MY_THREADS+{params.my_threads}+g' \
 		| sed 's+MY_INPUT+{input.bam}+g' \
 		| sed 's+MY_OUTDIR+{params.outdir}+g' \

@@ -160,7 +160,7 @@ samples:
     oldName: TP53_20wTumo1
     replicate: 1
 
-######## Not Nowwww #########
+####### Not Nowwww #########
 
   TP53_48h2:
     fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
@@ -242,29 +242,29 @@ samples:
     replicate: 1
 
 #### Merged samples
-merged:
-  TP53_6w:
-    bam1: TP53_6w1
-    bam2: TP53_6w2
-    seqPlatform: Macrogen
-    model: RPE_TP53
-    control: WT_Ctrl
-    expectedPloidy: 2
-    maxPloidy: 6
-    group1: wgd
-    oldName: TP53_Aneu
-    replicate: m
+# merged:
+#   TP53_6w:
+#     bam1: TP53_6w1
+#     bam2: TP53_6w2
+#     seqPlatform: Macrogen
+#     model: RPE_TP53
+#     control: WT_Ctrl
+#     expectedPloidy: 2
+#     maxPloidy: 6
+#     group1: wgd
+#     oldName: TP53_Aneu
+#     replicate: m
 
-  TP53_48h:
-    read1: TP53_48h1
-    read2: TP53_48h2
-    seqPlatform: Macrogen
-    model: RPE_TP53
-    control: WT_Ctrl
-    expectedPloidy: 2
-    maxPloidy: 6
-    group1: wgd
-    oldName: TP53_48Rec
-    replicate: m
+#   TP53_48h:
+#     read1: TP53_48h1
+#     read2: TP53_48h2
+#     seqPlatform: Macrogen
+#     model: RPE_TP53
+#     control: WT_Ctrl
+#     expectedPloidy: 2
+#     maxPloidy: 6
+#     group1: wgd
+#     oldName: TP53_48Rec
+#     replicate: m
 
 
