@@ -2,8 +2,10 @@
 library (facets)
 
 set.seed(1223)
-datafile = system.file(snakemake@input[["pileup"]]) 
+#snakemake@input[["pileup"]]
+datafile = 'TP53_6wTumo1_mskcc_pileup_dbsnp.txt.gz'
 rcmat = readSnpMatrix(datafile)
+rcmat[1:10,]
 xx = preProcSample(rcmat)
 
 # A bivariate genome segmentation is performed on logR and logOR by extending the 
@@ -41,13 +43,14 @@ fit$purity
 fit$ploidy
 
 plt = plotSample(x=oo,emfit=fit)
-
-png(filename = snakemake@output[["plot"]], width = 1000, height=1500)
-print (plot)
+# snakemake@output[["plot"]
+png(filename = 'plot1', width = 1000, height=1500)
+print (plt)
 dev.off()
 
 spiderplt = logRlogORspider(oo$out, oo$dipLogR)
-png(filename = snakemake@output[["diagplot"]], width = 500, height=500)
+# snakemake@output[["diagplot"]
+png(filename = 'diagplot', width = 500, height=500)
 print (spiderplt)
 dev.off()
 

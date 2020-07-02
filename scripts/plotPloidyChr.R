@@ -7,7 +7,7 @@ suppressPackageStartupMessages(library (tidyverse))
 
 # ## Runs on single samples
 # sample = snakemake@params[["sam_id"]]
-# cnvs = read.table(snakemake@input[["cnp"]], header = T) %>% as.tbl()
+# cnvs = read.table(snakemake@input[["cnp"]], header = T) %>% as_tibble()
 # #maxPloidyLevel = snakemake@params[["maxploidy"]]
 # ploidy = snakemake@params[["ploidy"]] # expected ploidy
 # ylimits = c(0, maxPloidyLevel)
@@ -15,7 +15,7 @@ suppressPackageStartupMessages(library (tidyverse))
 
 ## Runs on single samples
 sample = args[1]
-ratios = read.table(args[2], header = T) %>% as.tbl()
+ratios = read.table(args[2], header = T) %>% as_tibble()
 ploidy = args[3] # expected ploidy
 if (ploidy == '2,3,4'){ploidy = 2}
 outdir = args[4]
@@ -36,7 +36,8 @@ chromsizes = ratios %>%
 
 newCoords = ratios %>% mutate (Chromosome = factor (Chromosome, levels = c(1:22, "X"))) %>% arrange(Chromosome) %>%
   left_join(chromsizes, by = "Chromosome") %>% mutate (Start = Start + newStart) %>%
-  mutate (PloidyCol = ifelse(CopyNumber==ploidy, "2", ifelse (CopyNumber<ploidy, "1", "3")))
+  mutate (PloidyCol = ifelse(CopyNumber==ploidy, "2", ifelse (CopyNumber<ploidy, "1", "3")), 
+    ticks_position = round((newStart +newEnd)/2, 0))
 
 # plt_ploidy = newCoords %>% 
 #   filter (Ratio > -1) %>% mutate (CopyNumber = replace (CopyNumber, CopyNumber >= maxPloidyLevel, maxPloidyLevel)) %>%
@@ -55,10 +56,13 @@ plt_ratio = newCoords %>%
   geom_hline(yintercept = c(1,2,3,4,6), color = '#cacdcc', alpha = 0.6)+
   geom_vline(aes (xintercept = newStart), linetype = 'dashed', color = '#7b8280', alpha = 0.7)+
   geom_point(size = .8) + theme_bw(base_size = 16)+
-  theme (legend.position = "none", axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+  theme (legend.position = "none", axis.title.x = element_blank(), 
+    panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   scale_color_manual(values = c('#428bca', '#5cb85c', '#d9534f'))+
   ggtitle (ifelse (control =="single", paste(sample), paste (sample, 'with', control)))+
-  ylab ("normalized copy number profile") +xlab ("Chromosome") + coord_cartesian (ylim = ylimits)
+  ylab ("normalized copy number profile") +xlab ("Chromosome") + coord_cartesian (ylim = ylimits)+
+  scale_x_continuous(breaks = unique(newCoords$ticks_position), minor_breaks=NULL, labels=unique(newCoords$Chromosome), 
+                     expand = c(0.025, 0.025))
 
 # png(filename = snakemake@output[["plo"]], width = 1000, height = 400)
 # plot (plt_ploidy)

@@ -22,7 +22,7 @@ for (filename in qc_files){
 
 qc_mat = t(as.matrix (qc_project %>%rowwise() %>% mutate (V1 = replace(V1, grepl("#",V1), gsub("#", "N", V1)))))
 colnames (qc_mat) = qc_mat[1,]
-to_plot = as.data.frame(qc_mat[-1,], stringsAsFactors = F) %>% as.tbl()
+to_plot = as.data.frame(qc_mat[-1,], stringsAsFactors = F) %>% as_tibble()
 
 to_export = to_plot %>% pivot_longer(cols = 2:ncol(to_plot), names_to = "metric", values_to = "value") %>% pivot_wider(names_from = Sample)
 # outdir = as.character(snakemake@params["outdir"])
