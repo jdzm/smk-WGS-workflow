@@ -75,7 +75,7 @@ rule merge_freec_control:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
 	priority: 10
-	conda: '../envs/freec-useR.yaml'
+	conda: '../envs/useR.yaml'
 	script:
 		'../scripts/mergeFreec.R'
 
@@ -91,7 +91,7 @@ rule merge_freec_single:
 	params:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
-	conda: '../envs/freec-useR.yaml'
+	conda: '../envs/useR.yaml'
 	priority: 10
 	script:
 		'../scripts/mergeFreec.R'	

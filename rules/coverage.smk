@@ -14,7 +14,7 @@ rule coverage:
 		'../envs/freec-useR.yaml'
 	shell: 
 		"""		
-		bedtools genomecov -ibam {input.bam} -max 40 > {output.hist}
+		bedtools genomecov -ibam {input.bam} -max 120 > {output.hist}
 
 		Rscript --vanilla scripts/plotCov.R {params.sam_id} {params.chromsizes} {output.hist} 
         """
@@ -65,7 +65,7 @@ rule gather_QC:
 		qc_reps = ['%s/%s/QC_plots/qc.tsv.gz' % (derived, s) for s in samples]
 	output:
 		info_table = '%s/QC_summary/qc_info.tsv' % (derived)
-	conda: '../envs/freec-useR.yaml'
+	conda: '../envs/useR.yaml'
 	params: 
 		outdir = '%s/QC_summary/' % (derived)
 	script:	
