@@ -1,0 +1,195 @@
+project: 20200610-WGD-E02
+derived_data: ../derived_data
+in_data: ../input
+metadata: ../metadata
+threads: 22
+logs: ../logs
+scratch: ../derived_data/tmp/
+igv_vis: /mnt/data3/Juan/IGV-files/WGS
+
+sam_mem: 5G
+# precompiled version of delly for multithreading
+delly_precomp: /mnt/data3/Juan/tools/delly_precomp/delly_v0.8.3_linux_x86_64bit
+svtypes: ['BND','DEL','DUP','INV']
+
+####### GENOMES #######
+ref_genome:
+  human_g1k_hs37d5:
+    name: human_g1k_hs37d5
+    fasta: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.fasta
+    by_chroms: /mnt/data3/Juan/repository/human_g1k_hs37d5/chroms
+    dbsnp_vcf: /mnt/data3/Juan/repository/human_g1k_hs37d5/dbsnp/00-common_all.vcf.gz
+    blacklist: /mnt/data3/Juan/repository/human_g1k_hs37d5/hs37d5-blacklist.v2.bed
+    telocent: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.cent_telo_cont.excl.bed
+    gnomad_af_only: /mnt/data3/Juan/repository/hg19/gnomAD/af-only-gnomad.raw.sites.b37.vcf.gz
+    mutect_intervals: /mnt/data3/Juan/repository/human_g1k_hs37d5/keep_no_CentTeloCont_Black.bed
+    mutect_exclude: /mnt/data3/Juan/repository/human_g1k_hs37d5/hs37d5.exclude.bed
+    gem_mapp: /mnt/data3/Juan/repository/GEM_mappability/out100m2_human_g1k_hs37d5.gem
+    chrom_sizes:
+      full: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.chrom.sizes
+      main: /mnt/data3/Juan/repository/human_g1k_hs37d5/human_g1k_hs37d5.main.chrom.sizes
+annotate_vars:
+  func_dir: /mnt/data3/Juan/repository/funcotator_v1.6
+  vep_cache: /mnt/data3/Juan/repository/ensembleVEP/hg19
+
+####### SAMPLES #######
+samples:
+  # test_control:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+  #   read1: control_test_R1.fastq.gz
+  #   read2: control_test_R2.fastq.gz
+  #   model: RPE
+  #   control: test_control
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   replicate: 1
+  # test_tumor:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+  #   read1: tumor_test_R1.fastq.gz
+  #   read2: tumor_test_R1.fastq.gz
+  #   model: RPE
+  #   control: test_control
+  #   expectedPloidy: 2
+  #   maxPloidy: 6
+  #   replicate: 1
+  # WT_Ctrl:
+  #   fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+  #   read1: WT_Ctrl_R1.fastq.gz
+  #   read2: WT_Ctrl_R2.fastq.gz
+  #   seqPlatform: Macrogen
+  #   model: RPE
+  #   control: WT_Ctrl
+  #   replicateGroup: TP53_Ctrl
+  #   replicate: 1
+
+  TP53_Ctrl:
+    fastq: /mnt/data3/Juan/HiC_project/raw_data/HN00118096_hdd1
+    read1: TP53_Ctrl_R1.fastq.gz
+    read2: TP53_Ctrl_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_Ctrl
+    replicate: 1
+
+  TP53_6w1:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_c1_R1.fastq.gz
+    read2: Aneu8_c1_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6w
+    replicate: 1  
+
+  # TP53_6w2:
+  #   fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+  #   read1: Aneu8_c2_R1.fastq.gz
+  #   read2: Aneu8_c2_R2.fastq.gz
+  #   seqPlatform: Macrogen
+  #   model: RPE_TP53
+  #   control: TP53_Ctrl
+  #   replicateGroup: TP53_6w
+  #   replicate: 2  
+
+  # TP53_6w3:
+  #   fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+  #   read1: Aneu8_c3_R1.fastq.gz
+  #   read2: Aneu8_c3_R2.fastq.gz
+  #   seqPlatform: Macrogen
+  #   model: RPE_TP53
+  #   control: TP53_Ctrl
+  #   replicateGroup: TP53_6w
+  #   replicate: 3  
+
+  TP53_6wTumo11:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m11_R1.fastq.gz
+    read2: Aneu8_m11_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo1
+    replicate: 1
+
+  TP53_6wTumo12:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m12_R1.fastq.gz
+    read2: Aneu8_m12_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo1
+    replicate: 2
+
+  TP53_6wTumo13:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m13_R1.fastq.gz
+    read2: Aneu8_m13_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo1
+    replicate: 3
+# #Tumo2
+  TP53_6wTumo21:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m21_R1.fastq.gz
+    read2: Aneu8_m21_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo2
+    replicate: 1
+
+  TP53_6wTumo22:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m22_R1.fastq.gz
+    read2: Aneu8_m22_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo2
+    replicate: 2
+
+  TP53_6wTumo23:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m23_R1.fastq.gz
+    read2: Aneu8_m23_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo2
+    replicate: 3
+# #Tumo3
+  TP53_6wTumo31:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m31_R1.fastq.gz
+    read2: Aneu8_m31_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo3
+    replicate: 1
+
+  TP53_6wTumo32:
+    fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+    read1: Aneu8_m32_R1.fastq.gz
+    read2: Aneu8_m32_R2.fastq.gz
+    seqPlatform: Macrogen
+    model: RPE_TP53
+    control: TP53_Ctrl
+    replicateGroup: TP53_6wTumo3
+    replicate: 2
+
+#   TP53_6wTumo33:
+#     fastq: /mnt/data2/Juan/raw_data/HN00126077_Aneu8_WGD-E02
+#     read1: Aneu8_m33_R1.fastq.gz
+#     read2: Aneu8_m33_R2.fastq.gz
+#     seqPlatform: Macrogen
+#     model: RPE_TP53
+#     control: TP53_Ctrl
+#     replicateGroup: TP53_6wTumo3
+#     replicate: 3
+
+
