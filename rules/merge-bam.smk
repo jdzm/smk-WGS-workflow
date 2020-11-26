@@ -16,3 +16,6 @@ merge_bams:
 		# gatk addOrReplaceReadGroups
 		## reag groups have old names as samples, need merged names
 		"""
+
+# gatk AddOrReplaceReadGroups -I raw.mdups.recal.bam -O raw.mdups.recal.rehead.bam -LB lib1 \
+# -PL ILLUMINA -PU run1 -SM TP53_6w

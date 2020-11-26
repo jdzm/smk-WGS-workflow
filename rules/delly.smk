@@ -1,5 +1,4 @@
 ## Delly can be used with a file with regions to exclude. 
-## svprops provide a set of scripts that are quite useful to quickly transform vcf output
 ## Lastly, Delly requires a tsv file when run for several samples at once. 
 
 rule delly_joint_call:
@@ -106,8 +105,6 @@ rule delly_svmerge:
 		vcf_raw='%s/{s}/delly/merged_raw.vcf.gz' % (derived),
 		bcf_filt=temp ('%s/{s}/delly/merged_somatic.bcf' % (derived)),
 		vcf_filt='%s/{s}/delly/merged_somatic.vcf.gz' % (derived),
-		svprops_raw = '%s/{s}/delly/delly/merged_raw.tab' % (derived),
-		svprops_filt = '%s/s{s}/delly/delly/merged_somatic.tab' % (derived),
 	threads: 2
 	conda:
 		'../envs/trans.yaml'

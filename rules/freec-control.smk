@@ -4,19 +4,19 @@ rule control_freec:
 		bam = '%s/{s}/aligned/raw.mdups.recal.bam' % (in_data), 
 		cont = lambda wc: '%s/%s/aligned/raw.mdups.recal.bam' % (in_data, samples[wc.s]['control'])
 	output: 
-		con = '%s/{s}/freec_{m}/config_{m}.txt' % (derived),
-		cnvs = '%s/{s}/freec_{m}/freec_CNVs' % (derived),
-		freec_ratio = '%s/{s}/freec_{m}/freec_ratio.txt' % (derived),
-		freec_info = '%s/{s}/freec_{m}/freec_info.txt' % (derived),
+		con = '%s/{s}/freec_{m}_{r}/config_{m}.txt' % (derived),
+		cnvs = '%s/{s}/freec_{m}_{r}/freec_CNVs' % (derived),
+		freec_ratio = '%s/{s}/freec_{m}_{r}/freec_ratio.txt' % (derived),
+		freec_info = '%s/{s}/freec_{m}_{r}/freec_info.txt' % (derived),
 	conda: '../envs/freec-useR.yaml'
 	threads: config['threads'] // 5
-	log: '%s/{s}/05_freec_{m}.log' % (logs)
+	log: '%s/{s}/05_freec_{m}_{r}.log' % (logs)
 	params: 
-		outdir = '%s/{s}/freec_{m}' % (derived), 
+		outdir = '%s/{s}/freec_{m}_{r}' % (derived), 
 		chromsizes = genome['chrom_sizes']['main'],
 		gchroms = genome['by_chroms'],
 		gem_map = genome['gem_mapp'],
-		template = '%s/freec_config/config_template_{m}.txt' % (metadata), 
+		template = '%s/freec_config/config_template_{m}_{r}.txt' % (metadata), 
 		my_threads = config['threads'] // 5, 
 		exp_ploidy = '2,3,4',
 		g = genome['fasta'],
@@ -41,17 +41,17 @@ rule control_freec:
 
 rule extra_files_freec:
 	input:
-		cnvs = '%s/{s}/freec_{m}/freec_CNVs' % (derived),
-		freec_ratio = '%s/{s}/freec_{m}/freec_ratio.txt' % (derived)
+		cnvs = '%s/{s}/freec_{m}_{r}/freec_CNVs' % (derived),
+		freec_ratio = '%s/{s}/freec_{m}_{r}/freec_ratio.txt' % (derived)
 	output: 
-		ratio_plot = '%s/{s}/freec_{m}/freec_ratio.png' % (derived),
-		cnvsignif = '%s/{s}/freec_{m}/freec_CNVs.p.value.txt' % (derived)
+		ratio_plot = '%s/{s}/freec_{m}_{r}/freec_ratio.png' % (derived),
+		cnvsignif = '%s/{s}/freec_{m}_{r}/freec_CNVs.p.value.txt' % (derived)
 	params: 
-		outdir = '%s/{s}/freec_{m}/' % (derived),  
+		outdir = '%s/{s}/freec_{m}_{r}/' % (derived),  
 		exp_ploidy = '2,3,4',
 		sam_id = '{s}'
 	conda: '../envs/freec-useR.yaml'
-	log: '%s/{s}/05_freec_{m}_plots.log' % (logs)
+	log: '%s/{s}/05_freec_{m}_{r}_plots.log' % (logs)
 	priority: 10
 	shell: 
 		"""
@@ -64,13 +64,13 @@ rule extra_files_freec:
 # merge ratios and CNV calls from all samples
 rule merge_freec_control: 
 	input: 
-		cnvs = ['%s/%s/freec_control/freec_CNVs.p.value.txt' % (derived, t) for t in tumors],
-		ratios = ['%s/%s/freec_control/freec_ratio.txt' % (derived, t) for t in tumors],
-		info = ['%s/%s/freec_control/freec_info.txt' % (derived, t) for t in tumors]
+		cnvs = ['%s/%s/freec_control_{r}/freec_CNVs.p.value.txt' % (derived, t) for t in tumors],
+		ratios = ['%s/%s/freec_control_{r}/freec_ratio.txt' % (derived, t) for t in tumors],
+		info = ['%s/%s/freec_control_{r}/freec_info.txt' % (derived, t) for t in tumors]
 	output:
-		cnv_sam = '%s/cnv_calls/{m}/control-freec/cnvs_control.tsv' % (derived),
-		ratio_mat = '%s/cnv_calls/{m}/control-freec/ratio_control.tsv' % (derived), 
-		freec_info = '%s/cnv_calls/{m}/control-freec/freec_info_control.tsv' % (derived)
+		cnv_sam = '%s/cnv_calls/{m}/control-freec/cnvs_control_{r}.tsv' % (derived),
+		ratio_mat = '%s/cnv_calls/{m}/control-freec/ratio_control_{r}.tsv' % (derived), 
+		freec_info = '%s/cnv_calls/{m}/control-freec/freec_info_control_{r}.tsv' % (derived)
 	params:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
@@ -81,13 +81,13 @@ rule merge_freec_control:
 
 rule merge_freec_single: 
 	input: 
-		cnvs = ['%s/%s/freec_single/freec_CNVs.p.value.txt' % (derived, s) for s in samples],
-		ratios = ['%s/%s/freec_single/freec_ratio.txt' % (derived, s) for s in samples],
-		info = ['%s/%s/freec_single/freec_info.txt' % (derived, s) for s in samples]
+		cnvs = ['%s/%s/freec_single_{r}/freec_CNVs.p.value.txt' % (derived, s) for s in samples],
+		ratios = ['%s/%s/freec_single_{r}/freec_ratio.txt' % (derived, s) for s in samples],
+		info = ['%s/%s/freec_single_{r}/freec_info.txt' % (derived, s) for s in samples]
 	output:
-		cnv_sam = '%s/cnv_calls/{m}/control-freec/cnvs_single.tsv' % (derived),
-		ratio_mat = '%s/cnv_calls/{m}/control-freec/ratio_single.tsv' % (derived), 
-		freec_info = '%s/cnv_calls/{m}/control-freec/freec_info_single.tsv' % (derived)
+		cnv_sam = '%s/cnv_calls/{m}/control-freec/cnvs_single_{r}.tsv' % (derived),
+		ratio_mat = '%s/cnv_calls/{m}/control-freec/ratio_single_{r}.tsv' % (derived), 
+		freec_info = '%s/cnv_calls/{m}/control-freec/freec_info_single_{r}.tsv' % (derived)
 	params:
 		blacklist = genome["blacklist"],
 		excl = genome["telocent"]
